@@ -1,5 +1,6 @@
 package com.lcaccess.littlelemon
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,7 +13,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LittleLemonTheme {
-                AppNav()
+                var context = applicationContext
+                val sharedPreferences by lazy { getSharedPreferences("UserPref", Context.MODE_PRIVATE)}
+                AppNav(sharedPreferences,context)
             }
         }
     }

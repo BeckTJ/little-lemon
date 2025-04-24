@@ -1,5 +1,10 @@
 package com.lcaccess.littlelemon
 
+import android.app.Activity
+import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,11 +36,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
 import androidx.navigation.NavController
 import com.lcaccess.littlelemon.ui.theme.Primary1
 
 @Composable
-fun Onboarding(navController: NavController){
+fun Onboarding(navController: NavController, sharedPreferences: SharedPreferences, context: Context){
+
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var userEmail by remember { mutableStateOf("") }
@@ -49,11 +56,13 @@ fun Onboarding(navController: NavController){
                     .padding(25.dp)
                     .size(40.dp)
             )
-            Row(verticalAlignment = Alignment.CenterVertically,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.background(Primary1)
                     .fillMaxWidth()
-                    .height(200.dp),) {
+                    .height(200.dp),
+            ) {
                 Text(
                     text = "Let's get to know you",
                     color = Color.White,
@@ -61,7 +70,7 @@ fun Onboarding(navController: NavController){
                 )
             }
             Column(modifier = Modifier.padding(50.dp)) {
-                Text(text = "Personal Information", fontSize = 18.sp, fontWeight = FontWeight.Bold,)
+                Text(text = "Personal Information", fontSize = 18.sp, fontWeight = FontWeight.Bold)
 
                 Column(modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.SpaceEvenly,
@@ -72,14 +81,16 @@ fun Onboarding(navController: NavController){
                             .border(BorderStroke(1.dp, color = Color.Black)),
                         onValueChange = { firstName = it },
                         label = { Text("First Name") },
-                        value = firstName
+                        value = firstName,
+                        singleLine = true,
                     )
                     TextField(
                         modifier = Modifier.padding(5.dp)
                             .border(BorderStroke(1.dp, color = Color.Black)),
                         onValueChange = { lastName = it },
                         label = { Text("Last Name") },
-                        value = lastName
+                        value = lastName,
+                        singleLine = true,
                     )
                     TextField(
                         modifier = Modifier.padding(5.dp)
@@ -87,9 +98,25 @@ fun Onboarding(navController: NavController){
                         onValueChange = { userEmail = it },
                         label = { Text("Email Address") },
                         value = userEmail,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        singleLine = true,
                     )
-                    Button(onClick = {navController.navigate(Home.route)}) {
+                    Button(onClick = {
+                       if(firstName.isBlank() || lastName.isBlank() || userEmail.isBlank()){
+                           Toast.makeText(context,"Registration unsuccessful", Toast.LENGTH_SHORT).show()
+                       }
+                        else{
+                           sharedPreferences.edit() {
+                               putString("FirstName", firstName)
+                                   .putString("LastName", lastName)
+                                   .putString("UserEmail", userEmail)
+                           }
+
+                           Toast.makeText(context, "Registration Successful!", Toast.LENGTH_SHORT).show()
+                           navController.navigate(Home.route)
+                       }
+
+                    }) {
                         Text(text = "Register")
                     }
                 }
